@@ -82,3 +82,4 @@ npm run dev
 
 ## Notes
 This project is intentionally simple and suitable for a college mini project.
+This project is developed using the MERN stack.

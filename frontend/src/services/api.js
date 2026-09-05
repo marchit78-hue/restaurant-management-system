@@ -1,29 +1,36 @@
 import axios from 'axios';
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+  import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// ==================== AUTH ====================
+// --------------------------------------------------
+// AUTH
+// --------------------------------------------------
 
 export const loginUser = async (
   loginId,
   password,
   role
 ) => {
-  const response = await api.post('/auth/login', {
-    loginId,
-    password,
-    role,
-  });
+  const response = await api.post(
+    '/auth/login',
+    {
+      loginId,
+      password,
+      role,
+    }
+  );
 
   return response.data;
 };
 
-export const registerUser = async (userData) => {
+export const registerUser = async (
+  userData
+) => {
   const response = await api.post(
     '/auth/register',
     userData
@@ -32,11 +39,14 @@ export const registerUser = async (userData) => {
   return response.data;
 };
 
-// ==================== AUTH TOKEN ====================
+// --------------------------------------------------
+// AUTH TOKEN
+// --------------------------------------------------
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token =
+      localStorage.getItem('token');
 
     if (token) {
       config.headers.Authorization =
@@ -45,12 +55,13 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) =>
+    Promise.reject(error)
 );
 
-// ==================== MENU ====================
+// --------------------------------------------------
+// MENU
+// --------------------------------------------------
 
 export const getMenu = async () => {
   const response = await api.get('/menu');
@@ -58,7 +69,9 @@ export const getMenu = async () => {
   return response.data;
 };
 
-export const addMenu = async (menuData) => {
+export const addMenu = async (
+  menuData
+) => {
   const response = await api.post(
     '/menu',
     menuData
@@ -79,7 +92,9 @@ export const updateMenu = async (
   return response.data;
 };
 
-export const deleteMenu = async (id) => {
+export const deleteMenu = async (
+  id
+) => {
   const response = await api.delete(
     `/menu/${id}`
   );
@@ -87,27 +102,35 @@ export const deleteMenu = async (id) => {
   return response.data;
 };
 
-// ==================== AVAILABILITY ====================
+// --------------------------------------------------
+// AVAILABILITY
+// --------------------------------------------------
 
-export const toggleMenuAvailability = async (
-  id
-) => {
-  const response = await api.patch(
-    `/menu/${id}/availability`
+export const toggleMenuAvailability =
+  async (id) => {
+    const response =
+      await api.patch(
+        `/menu/${id}/availability`
+      );
+
+    return response.data;
+  };
+
+// --------------------------------------------------
+// ORDERS
+// --------------------------------------------------
+
+export const getOrders = async () => {
+  const response = await api.get(
+    '/orders'
   );
 
   return response.data;
 };
 
-// ==================== ORDERS ====================
-
-export const getOrders = async () => {
-  const response = await api.get('/orders');
-
-  return response.data;
-};
-
-export const addOrder = async (orderData) => {
+export const addOrder = async (
+  orderData
+) => {
   const response = await api.post(
     '/orders',
     orderData
@@ -128,7 +151,9 @@ export const updateOrder = async (
   return response.data;
 };
 
-export const deleteOrder = async (id) => {
+export const deleteOrder = async (
+  id
+) => {
   const response = await api.delete(
     `/orders/${id}`
   );
@@ -136,9 +161,13 @@ export const deleteOrder = async (id) => {
   return response.data;
 };
 
-// ==================== CART ====================
+// --------------------------------------------------
+// CART
+// --------------------------------------------------
 
-export const saveCart = async (cartData) => {
+export const saveCart = async (
+  cartData
+) => {
   const response = await api.post(
     '/cart',
     cartData
@@ -171,7 +200,9 @@ export const clearCart = async () => {
   return response.data;
 };
 
-// ==================== FEEDBACK ====================
+// --------------------------------------------------
+// FEEDBACK
+// --------------------------------------------------
 
 export const submitFeedback = async (
   feedbackData
@@ -184,30 +215,30 @@ export const submitFeedback = async (
   return response.data;
 };
 
-export const getAllFeedback = async () => {
-  const response = await api.get(
-    '/feedback'
-  );
+export const getAllFeedback =
+  async () => {
+    const response =
+      await api.get('/feedback');
 
-  return response.data;
-};
+    return response.data;
+  };
 
-export const getMyFeedback = async () => {
-  const response = await api.get(
-    '/feedback/my'
-  );
+export const getMyFeedback =
+  async () => {
+    const response =
+      await api.get('/feedback/my');
 
-  return response.data;
-};
+    return response.data;
+  };
 
-export const getFoodRatings = async () => {
-  const response = await api.get(
-    '/feedback/food-ratings'
-  );
+export const getFoodRatings =
+  async () => {
+    const response =
+      await api.get(
+        '/feedback/food-ratings'
+      );
 
-  return response.data;
-};
-
-// ==================== DEFAULT API ====================
+    return response.data;
+  };
 
 export default api;

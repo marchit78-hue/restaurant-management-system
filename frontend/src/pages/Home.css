@@ -1,0 +1,220 @@
+.home-page {
+  min-height: 100vh;
+  background: #faf8f4;
+}
+
+/* ==================== HERO ==================== */
+
+.home-hero {
+  min-height: 650px;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.78),
+      rgba(0, 0, 0, 0.42),
+      rgba(0, 0, 0, 0.15)
+    ),
+    url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1800&q=90');
+
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+}
+
+.home-overlay {
+  width: 100%;
+}
+
+.home-content {
+  max-width: 700px;
+  padding: 80px 7%;
+  color: white;
+}
+
+.home-welcome {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  margin-bottom: 15px;
+  opacity: 0.9;
+}
+
+.home-content h1 {
+  font-size: clamp(48px, 7vw, 82px);
+  font-weight: 800;
+  margin: 0;
+  line-height: 1;
+}
+
+.home-content h2 {
+  font-size: clamp(24px, 3vw, 38px);
+  font-weight: 400;
+  margin: 20px 0;
+}
+
+.home-description {
+  max-width: 580px;
+  font-size: 18px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ==================== BUTTONS ==================== */
+
+.home-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.home-primary-btn,
+.home-secondary-btn {
+  border: none;
+  padding: 14px 25px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.home-primary-btn {
+  background: #ffffff;
+  color: #1d1d1d;
+}
+
+.home-primary-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.home-secondary-btn {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.home-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+}
+
+/* ==================== FEATURES ==================== */
+
+.home-features {
+  padding: 80px 0;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+  opacity: 0.65;
+}
+
+.home-features h2 {
+  font-size: 36px;
+}
+
+.feature-card {
+  height: 100%;
+  background: white;
+  padding: 35px 28px;
+  border-radius: 18px;
+  text-align: center;
+  border: 1px solid #eee;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.09);
+}
+
+.feature-icon {
+  font-size: 45px;
+  margin-bottom: 20px;
+}
+
+.feature-card h4 {
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  color: #777;
+  line-height: 1.7;
+  margin-bottom: 0;
+}
+
+/* ==================== CTA ==================== */
+
+.home-cta {
+  padding: 85px 20px;
+  background: #1d1d1d;
+  color: white;
+}
+
+.home-cta h2 {
+  font-size: clamp(30px, 5vw, 50px);
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.home-cta p:not(.section-label) {
+  color: #cfcfcf;
+  font-size: 17px;
+  margin-bottom: 28px;
+}
+
+/* ==================== MOBILE ==================== */
+
+@media (max-width: 768px) {
+  .home-hero {
+    min-height: 600px;
+    background-position: center;
+  }
+
+  .home-content {
+    padding: 70px 25px;
+  }
+
+  .home-content h1 {
+    font-size: 48px;
+  }
+
+  .home-content h2 {
+    font-size: 25px;
+  }
+
+  .home-description {
+    font-size: 16px;
+  }
+
+  .home-features {
+    padding: 60px 15px;
+  }
+
+  .home-features h2 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-content h1 {
+    font-size: 40px;
+  }
+
+  .home-buttons {
+    flex-direction: column;
+  }
+
+  .home-primary-btn,
+  .home-secondary-btn {
+    width: 100%;
+  }
+}

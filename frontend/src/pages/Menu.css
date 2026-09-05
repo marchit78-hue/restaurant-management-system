@@ -1,0 +1,378 @@
+/* =========================================
+   ARCH RESTAURANT — CUSTOMER MENU
+========================================= */
+
+.menu-page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 35px 24px 70px;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.menu-header {
+  text-align: center;
+  margin-bottom: 38px;
+}
+
+.menu-header h1 {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.menu-header p {
+  font-size: 17px;
+  color: #6b7280;
+}
+
+/* =========================================
+   FOOD GRID
+========================================= */
+
+.menu-page .row.g-4 {
+  align-items: stretch;
+}
+
+/* =========================================
+   FOOD CARD
+========================================= */
+
+.menu-page .row.g-4 > div {
+  display: flex;
+}
+
+.menu-page .row.g-4 > div > .card {
+  width: 100%;
+}
+
+.menu-page .card {
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e5e7eb !important;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-page .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* =========================================
+   FOOD IMAGE — EXACT 4:3
+========================================= */
+
+.menu-page .food-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+
+  background: #f3f4f6;
+
+  transition: transform 0.35s ease;
+}
+
+.menu-page .card:hover .food-image {
+  transform: scale(1.025);
+}
+
+/* =========================================
+   IMAGE CONTAINER
+========================================= */
+
+.menu-page .card > div:first-child {
+  overflow: hidden;
+}
+
+/* =========================================
+   CARD BODY
+========================================= */
+
+.menu-page .card-body {
+  padding: 18px 17px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* =========================================
+   FOOD NAME
+========================================= */
+
+.menu-page .card-title {
+  color: #111827;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+
+  text-transform: capitalize;
+}
+
+/* =========================================
+   AVAILABILITY BADGE
+========================================= */
+
+.menu-page .badge {
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 6px;
+}
+
+/* =========================================
+   SIZE LABEL
+========================================= */
+
+.menu-page .form-label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+
+/* =========================================
+   HALF / FULL BUTTONS
+========================================= */
+
+.menu-page .d-flex.gap-2 .btn {
+  min-height: 62px;
+  border-radius: 7px;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 500;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.menu-page .d-flex.gap-2 .btn strong {
+  font-size: 14px;
+}
+
+.menu-page .d-flex.gap-2 .btn:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   SELECTED SIZE / PRICE
+========================================= */
+
+.menu-page .text-muted {
+  font-size: 14px;
+}
+
+.menu-page .fs-3 {
+  color: #111827;
+  font-size: 29px !important;
+  font-weight: 800 !important;
+  margin-top: 2px;
+}
+
+/* =========================================
+   ADD TO CART
+========================================= */
+
+.menu-page .card-body > .btn {
+  min-height: 48px;
+  border-radius: 8px;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  margin-top: auto;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.menu-page .card-body > .btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgba(0, 0, 0, 0.15);
+}
+
+.menu-page .card-body > .btn:disabled {
+  opacity: 0.75;
+}
+
+/* =========================================
+   UNAVAILABLE CARD
+========================================= */
+
+.menu-page .card.opacity-75 {
+  opacity: 0.72 !important;
+}
+
+.menu-page .card.opacity-75 .food-image {
+  filter: grayscale(25%);
+}
+
+/* =========================================
+   CART SECTION
+========================================= */
+
+.menu-page > .card:last-child {
+  margin-top: 50px !important;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.menu-page > .card:last-child .card-body {
+  padding: 26px;
+}
+
+.menu-page > .card:last-child h2 {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+/* =========================================
+   CART ITEMS
+========================================= */
+
+.menu-page .list-group-item {
+  padding: 18px 10px;
+  border-left: 0;
+  border-right: 0;
+}
+
+.menu-page .list-group-item h6 {
+  font-size: 16px;
+}
+
+.menu-page .list-group-item .btn {
+  border-radius: 6px;
+}
+
+/* =========================================
+   PRICE SUMMARY
+========================================= */
+
+.menu-page .border.rounded.p-3 {
+  background: #fafafa;
+}
+
+.menu-page .border.rounded.p-3 .fs-5 {
+  font-weight: 800;
+}
+
+/* =========================================
+   FEEDBACK MESSAGE
+========================================= */
+
+.menu-page .alert {
+  border-radius: 9px;
+  font-weight: 600;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 991px) {
+  .menu-page {
+    padding: 30px 18px 55px;
+  }
+
+  .menu-header h1 {
+    font-size: 38px;
+  }
+
+  .menu-header p {
+    font-size: 16px;
+  }
+
+  .menu-page .card-title {
+    font-size: 22px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 767px) {
+  .menu-page {
+    padding: 25px 14px 45px;
+  }
+
+  .menu-header {
+    margin-bottom: 28px;
+  }
+
+  .menu-header h1 {
+    font-size: 32px;
+  }
+
+  .menu-header p {
+    font-size: 15px;
+  }
+
+  /* Keep exact 4:3 ratio */
+  .menu-page .food-image {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .menu-page .card-title {
+    font-size: 21px;
+  }
+
+  .menu-page .card-body {
+    padding: 16px;
+  }
+
+  .menu-page .fs-3 {
+    font-size: 26px !important;
+  }
+
+  .menu-page > .card:last-child .card-body {
+    padding: 19px;
+  }
+
+  .menu-page > .card:last-child h2 {
+    font-size: 24px;
+  }
+}
+
+/* =========================================
+   SMALL PHONES
+========================================= */
+
+@media (max-width: 400px) {
+  .menu-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .menu-header h1 {
+    font-size: 29px;
+  }
+
+  .menu-page .card-title {
+    font-size: 20px;
+  }
+
+  .menu-page .card-body {
+    padding: 14px;
+  }
+}

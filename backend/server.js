@@ -78,9 +78,19 @@ app.get('/', (req, res) => {
 connectDB();
 
 // --------------------------------------------------
-// START SERVER
+// LOCAL SERVER
 // --------------------------------------------------
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`arch-restaurant API running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(
+      `arch-restaurant API running on port ${PORT}`
+    );
+  });
+}
+
+// --------------------------------------------------
+// VERCEL
+// --------------------------------------------------
+
+module.exports = app;

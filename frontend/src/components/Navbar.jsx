@@ -57,6 +57,13 @@ function Navbar() {
                             </Link>
 
                             <Link
+                                to="/admin-carts"
+                                className="btn btn-outline-light"
+                            >
+                                🛒 Live Carts
+                            </Link>
+
+                            <Link
                                 to="/reviews"
                                 className="btn btn-outline-light"
                             >

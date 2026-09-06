@@ -1,29 +1,38 @@
 const mongoose = require('mongoose');
 
-const connectDB = async () => {
-  try {
-    if (!process.env.MONGO_URI) {
-      throw new Error(
-        'MONGO_URI is not configured. Please add it to the environment variables.'
-      );
-    }
+let cachedConnection = null;
 
-    const conn = await mongoose.connect(
-      process.env.MONGO_URI
+const connectDB = async () => {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    return cachedConnection;
+  }
+
+  if (!process.env.MONGO_URI) {
+    throw new Error('MONGO_URI is not configured');
+  }
+
+  try {
+    cachedConnection = await mongoose.connect(
+      process.env.MONGO_URI,
+      {
+        serverSelectionTimeoutMS: 10000,
+      }
     );
 
     console.log(
-      `MongoDB connected successfully: ${conn.connection.host}`
+      `MongoDB connected successfully: ${cachedConnection.connection.host}`
     );
 
-    return conn;
+    return cachedConnection;
   } catch (error) {
+    cachedConnection = null;
+
     console.error(
       'MongoDB connection failed:',
       error.message
     );
 
-    process.exit(1);
+    throw error;
   }
 };
 

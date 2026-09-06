@@ -1,32 +1,34 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/api';
 import './Register.css';
 
 function Register() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  const selectedRole =
-    searchParams.get('role') === 'admin'
-      ? 'admin'
-      : 'customer';
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] =
+    useState('');
+
+  const [showPassword, setShowPassword] =
+    useState(false);
+
   const [loading, setLoading] = useState(false);
+
+  // =========================
+  // REGISTER CUSTOMER
+  // =========================
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
     if (
-      !name ||
+      !name.trim() ||
       !phone ||
-      !userId ||
+      !userId.trim() ||
       !password ||
       !confirmPassword
     ) {
@@ -34,8 +36,11 @@ function Register() {
       return;
     }
 
-    if (phone.length < 10) {
-      alert('Please enter a valid phone number.');
+    // Phone must contain exactly 10 digits.
+    if (!/^\d{10}$/.test(phone)) {
+      alert(
+        'Phone number must contain exactly 10 digits.'
+      );
       return;
     }
 
@@ -54,21 +59,26 @@ function Register() {
     try {
       setLoading(true);
 
+      // Do NOT send a role from the frontend.
+      // The backend creates every public registration
+      // as a customer.
       await registerUser({
-        name,
+        name: name.trim(),
         phone,
-        userId,
+        userId: userId.trim(),
         password,
-        role: selectedRole,
       });
 
       alert(
-        `${selectedRole === 'admin' ? 'Admin' : 'Customer'} account created successfully! Please login.`
+        'Customer account created successfully! Please login.'
       );
 
       navigate('/');
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error(
+        'Registration error:',
+        error
+      );
 
       const message =
         error.response?.data?.message ||
@@ -81,6 +91,18 @@ function Register() {
     }
   };
 
+  // =========================
+  // PHONE INPUT
+  // =========================
+
+  const handlePhoneChange = (e) => {
+    // Keep digits only and stop at 10 digits.
+    const numericValue =
+      e.target.value.replace(/\D/g, '').slice(0, 10);
+
+    setPhone(numericValue);
+  };
+
   return (
     <div className="register-page">
 
@@ -88,7 +110,9 @@ function Register() {
 
       <div className="register-container">
 
-        {/* LEFT SIDE */}
+        {/* =========================
+            LEFT SIDE
+        ========================== */}
 
         <div className="register-welcome">
 
@@ -105,69 +129,52 @@ function Register() {
           </h3>
 
           <p>
-            {selectedRole === 'admin'
-              ? 'Create your restaurant administrator account and manage arch-restaurant with ease.'
-              : 'Create your account and discover delicious food, easy ordering and a better dining experience at arch-restaurant.'}
+            Create your account and discover
+            delicious food, easy ordering and
+            a better dining experience at
+            arch-restaurant.
           </p>
 
           <div className="register-benefits">
 
             <div>
-              <span>
-                {selectedRole === 'admin' ? '📊' : '🍕'}
-              </span>
+              <span>🍕</span>
 
               <div>
                 <strong>
-                  {selectedRole === 'admin'
-                    ? 'Manage Restaurant'
-                    : 'Explore Our Menu'}
+                  Explore Our Menu
                 </strong>
 
                 <small>
-                  {selectedRole === 'admin'
-                    ? 'Control your restaurant operations'
-                    : 'Discover delicious dishes'}
+                  Discover delicious dishes
                 </small>
               </div>
             </div>
 
             <div>
-              <span>
-                {selectedRole === 'admin' ? '🍽️' : '🛒'}
-              </span>
+              <span>🛒</span>
 
               <div>
                 <strong>
-                  {selectedRole === 'admin'
-                    ? 'Manage Menu'
-                    : 'Easy Ordering'}
+                  Easy Ordering
                 </strong>
 
                 <small>
-                  {selectedRole === 'admin'
-                    ? 'Add and manage food items'
-                    : 'Add items and order easily'}
+                  Add items and order easily
                 </small>
               </div>
             </div>
 
             <div>
-              <span>
-                {selectedRole === 'admin' ? '📦' : '📋'}
-              </span>
+              <span>📋</span>
 
               <div>
                 <strong>
-                  {selectedRole === 'admin'
-                    ? 'Manage Orders'
-                    : 'Track Your Orders'}
+                  Track Your Orders
                 </strong>
 
                 <small>
-                  {selectedRole === 'admin'
-                    ? 'View and manage customer orders'
-                    : 'Keep track of your food orders'}
+                  Keep track of your food orders
                 </small>
               </div>
             </div>
@@ -176,22 +183,20 @@ function Register() {
 
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* =========================
+            RIGHT SIDE
+        ========================== */}
 
         <div className="register-card">
 
           <div className="register-heading">
 
             <h2>
-              Create {selectedRole === 'admin'
-                ? 'Admin'
-                : 'Customer'} Account
+              Create Customer Account
             </h2>
 
             <p>
-              {selectedRole === 'admin'
-                ? 'Create your arch-restaurant administrator account'
-                : 'Join arch-restaurant today'}
+              Join arch-restaurant today
             </p>
 
           </div>
@@ -202,7 +207,9 @@ function Register() {
 
             <div className="register-input-group">
 
-              <label>Full Name</label>
+              <label>
+                Full Name
+              </label>
 
               <div className="register-input-wrapper">
 
@@ -215,6 +222,7 @@ function Register() {
                   onChange={(e) =>
                     setName(e.target.value)
                   }
+                  autoComplete="name"
                 />
 
               </div>
@@ -225,7 +233,9 @@ function Register() {
 
             <div className="register-input-group">
 
-              <label>Phone Number</label>
+              <label>
+                Phone Number
+              </label>
 
               <div className="register-input-wrapper">
 
@@ -233,14 +243,27 @@ function Register() {
 
                 <input
                   type="tel"
-                  placeholder="Enter your phone number"
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
+                  maxLength={10}
+                  placeholder="Enter 10-digit phone number"
                   value={phone}
-                  onChange={(e) =>
-                    setPhone(e.target.value)
-                  }
+                  onChange={handlePhoneChange}
+                  autoComplete="tel"
                 />
 
               </div>
+
+              <small
+                style={{
+                  display: 'block',
+                  marginTop: '6px',
+                  fontSize: '12px',
+                  opacity: 0.7,
+                }}
+              >
+                {phone.length}/10 digits
+              </small>
 
             </div>
 
@@ -248,7 +271,9 @@ function Register() {
 
             <div className="register-input-group">
 
-              <label>User ID</label>
+              <label>
+                User ID
+              </label>
 
               <div className="register-input-wrapper">
 
@@ -261,6 +286,7 @@ function Register() {
                   onChange={(e) =>
                     setUserId(e.target.value)
                   }
+                  autoComplete="username"
                 />
 
               </div>
@@ -271,7 +297,9 @@ function Register() {
 
             <div className="register-input-group">
 
-              <label>Password</label>
+              <label>
+                Password
+              </label>
 
               <div className="register-input-wrapper">
 
@@ -286,18 +314,25 @@ function Register() {
                   placeholder="Create a password"
                   value={password}
                   onChange={(e) =>
-                    setPassword(e.target.value)
+                    setPassword(
+                      e.target.value
+                    )
                   }
+                  autoComplete="new-password"
                 />
 
                 <button
                   type="button"
                   className="register-password-toggle"
                   onClick={() =>
-                    setShowPassword(!showPassword)
+                    setShowPassword(
+                      !showPassword
+                    )
                   }
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword
+                    ? '🙈'
+                    : '👁️'}
                 </button>
 
               </div>
@@ -308,7 +343,9 @@ function Register() {
 
             <div className="register-input-group">
 
-              <label>Confirm Password</label>
+              <label>
+                Confirm Password
+              </label>
 
               <div className="register-input-wrapper">
 
@@ -327,6 +364,7 @@ function Register() {
                       e.target.value
                     )
                   }
+                  autoComplete="new-password"
                 />
 
               </div>
@@ -343,17 +381,17 @@ function Register() {
 
               {loading
                 ? 'Creating Account...'
-                : `Create ${
-                    selectedRole === 'admin'
-                      ? 'Admin'
-                      : 'Customer'
-                  } Account`}
+                : 'Create Customer Account'}
 
-              {!loading && <span>→</span>}
+              {!loading && (
+                <span>→</span>
+              )}
 
             </button>
 
           </form>
+
+          {/* LOGIN REDIRECT */}
 
           <div className="login-redirect">
 

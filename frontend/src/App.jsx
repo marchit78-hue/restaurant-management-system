@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
+
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
@@ -10,6 +11,7 @@ import Orders from './pages/Orders';
 import AdminMenu from './pages/AdminMenu';
 import EditMenu from './pages/EditMenu';
 import Reviews from './pages/Reviews';
+import AdminCarts from './pages/AdminCarts';
 
 function App() {
   return (
@@ -50,6 +52,18 @@ function App() {
             <>
               <Navbar />
               <Dashboard />
+            </>
+          }
+        />
+
+        {/* ==================== ADMIN LIVE CUSTOMER CARTS ==================== */}
+
+        <Route
+          path="/admin-carts"
+          element={
+            <>
+              <Navbar />
+              <AdminCarts />
             </>
           }
         />

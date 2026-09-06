@@ -1,890 +1,681 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import {
-  getMenu,
-  addMenu,
-  updateMenu,
-  deleteMenu,
   getOrders,
+  getMenu,
+  getAllFeedback,
   getAllCarts,
-} from "../services/api";
-import MenuForm from "../components/MenuForm";
+} from '../services/api';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [menuItems, setMenuItems] = useState([]);
-  const [orderCount, setOrderCount] = useState(0);
-  const [liveCarts, setLiveCarts] = useState([]);
 
-  const [formData, setFormData] = useState({
-    foodName: "",
-    sizeCategory: "",
-    price: "",
-    image: "",
-  });
-
-  const [editingId, setEditingId] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [menu, setMenu] = useState([]);
+  const [feedback, setFeedback] = useState([]);
+  const [carts, setCarts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cartLoading, setCartLoading] = useState(true);
 
-  useEffect(() => {
-    loadDashboard();
-    loadLiveCarts();
-
-    const interval = setInterval(() => {
-      loadLiveCarts();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // ==================== DASHBOARD ====================
-
-  const loadDashboard = async () => {
+  const loadDashboardData = async () => {
     try {
       setLoading(true);
 
-      const menuData = await getMenu();
-      const orderData = await getOrders();
+      const [
+        ordersData,
+        menuData,
+        feedbackData,
+        cartsData,
+      ] = await Promise.all([
+        getOrders(),
+        getMenu(),
+        getAllFeedback(),
+        getAllCarts(),
+      ]);
 
-      setMenuItems(
-        Array.isArray(menuData)
-          ? menuData
-          : []
+      setOrders(
+        Array.isArray(ordersData)
+          ? ordersData
+          : ordersData?.orders || []
       );
 
-      setOrderCount(
-        Array.isArray(orderData)
-          ? orderData.length
-          : 0
+      setMenu(
+        Array.isArray(menuData)
+          ? menuData
+          : menuData?.menu || []
+      );
+
+      setFeedback(
+        Array.isArray(feedbackData)
+          ? feedbackData
+          : feedbackData?.feedback || []
+      );
+
+      setCarts(
+        Array.isArray(cartsData)
+          ? cartsData
+          : cartsData?.carts || []
       );
     } catch (error) {
       console.error(
-        "Dashboard error:",
+        'Dashboard data loading error:',
         error
-      );
-
-      alert(
-        "Unable to load dashboard data."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  // ==================== LIVE CARTS ====================
+  useEffect(() => {
+    loadDashboardData();
 
-  const loadLiveCarts = async () => {
-    try {
-      setCartLoading(true);
+    const interval = setInterval(() => {
+      loadDashboardData();
+    }, 5000);
 
-      const data = await getAllCarts();
+    return () => clearInterval(interval);
+  }, []);
 
-      setLiveCarts(
-        Array.isArray(data)
-          ? data
-          : []
-      );
-    } catch (error) {
-      console.error(
-        "Live cart error:",
-        error
-      );
-    } finally {
-      setCartLoading(false);
+  const totalOrders = orders.length;
+  const totalMenuItems = menu.length;
+  const totalFeedback = feedback.length;
+
+  const activeCarts = carts.filter(
+    (cart) =>
+      Array.isArray(cart?.items) &&
+      cart.items.length > 0
+  );
+
+  const totalLiveCarts = activeCarts.length;
+
+  const recentOrders = [...orders]
+    .sort(
+      (a, b) =>
+        new Date(
+          b.createdAt ||
+            b.orderDate ||
+            0
+        ) -
+        new Date(
+          a.createdAt ||
+            a.orderDate ||
+            0
+        )
+    )
+    .slice(0, 5);
+
+  const cardStyle = {
+    borderRadius: '12px',
+    padding: '28px',
+    boxShadow:
+      '0 4px 14px rgba(0,0,0,0.07)',
+    cursor: 'pointer',
+    border: 'none',
+    textAlign: 'left',
+    width: '100%',
+    transition:
+      'transform 0.2s ease, box-shadow 0.2s ease',
+  };
+
+  const handleCardHover = (
+    event,
+    entering
+  ) => {
+    if (entering) {
+      event.currentTarget.style.transform =
+        'translateY(-4px)';
+
+      event.currentTarget.style.boxShadow =
+        '0 8px 22px rgba(0,0,0,0.12)';
+    } else {
+      event.currentTarget.style.transform =
+        'translateY(0)';
+
+      event.currentTarget.style.boxShadow =
+        '0 4px 14px rgba(0,0,0,0.07)';
     }
   };
-
-  // ==================== FORM ====================
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]:
-        e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      if (editingId) {
-        await updateMenu(
-          editingId,
-          {
-            ...formData,
-            price: Number(
-              formData.price
-            ),
-          }
-        );
-
-        alert(
-          "Menu item updated successfully."
-        );
-      } else {
-        await addMenu({
-          ...formData,
-          price: Number(
-            formData.price
-          ),
-        });
-
-        alert(
-          "Menu item added successfully."
-        );
-      }
-
-      resetForm();
-      loadDashboard();
-    } catch (error) {
-      console.error(
-        "Menu save error:",
-        error
-      );
-
-      alert(
-        error.response?.data?.message ||
-          "Unable to save menu item."
-      );
-    }
-  };
-
-  const handleEdit = (item) => {
-    setEditingId(item._id);
-
-    setFormData({
-      foodName:
-        item.foodName || "",
-      sizeCategory:
-        item.sizeCategory || "",
-      price:
-        item.price || "",
-      image:
-        item.image || "",
-    });
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const handleDelete = async (id) => {
-    const confirmed =
-      window.confirm(
-        "Are you sure you want to delete this menu item?"
-      );
-
-    if (!confirmed) return;
-
-    try {
-      await deleteMenu(id);
-
-      alert(
-        "Menu item deleted successfully."
-      );
-
-      loadDashboard();
-    } catch (error) {
-      console.error(
-        "Delete menu error:",
-        error
-      );
-
-      alert(
-        error.response?.data?.message ||
-          "Unable to delete menu item."
-      );
-    }
-  };
-
-  const resetForm = () => {
-    setEditingId(null);
-
-    setFormData({
-      foodName: "",
-      sizeCategory: "",
-      price: "",
-      image: "",
-    });
-  };
-
-  // ==================== LIVE DEMAND SUMMARY ====================
-
-  const demandSummary = {};
-
-  liveCarts.forEach((cart) => {
-    cart.items?.forEach((item) => {
-      const key =
-        `${item.foodItem} - ${item.sizeCategory}`;
-
-      if (!demandSummary[key]) {
-        demandSummary[key] = {
-          foodItem:
-            item.foodItem,
-          sizeCategory:
-            item.sizeCategory,
-          quantity: 0,
-        };
-      }
-
-      demandSummary[key].quantity +=
-        Number(item.quantity || 0);
-    });
-  });
-
-  const demandItems =
-    Object.values(demandSummary);
-
-  const totalLiveCustomers =
-    liveCarts.length;
-
-  const totalLiveItems =
-    liveCarts.reduce(
-      (sum, cart) =>
-        sum +
-        (cart.items || []).reduce(
-          (itemSum, item) =>
-            itemSum +
-            Number(
-              item.quantity || 0
-            ),
-          0
-        ),
-      0
-    );
 
   return (
-    <div className="container py-4">
+    <main
+      style={{
+        minHeight:
+          'calc(100vh - 70px)',
+        background: '#f5f6f8',
+        padding: '38px',
+        boxSizing: 'border-box',
+      }}
+    >
 
-      {/* HEADER */}
+      {/* WELCOME */}
 
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <section
+        style={{
+          background: '#20262b',
+          color: '#fff',
+          borderRadius: '14px',
+          padding: '38px 44px',
+          marginBottom: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '28px',
+          boxShadow:
+            '0 8px 25px rgba(0,0,0,0.12)',
+        }}
+      >
+
+        <div
+          style={{
+            width: '110px',
+            height: '110px',
+            borderRadius: '50%',
+            background: '#9b7413',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '58px',
+            flexShrink: 0,
+          }}
+        >
+          👨‍🍳
+        </div>
 
         <div>
-          <h1 className="fw-bold">
-            Admin Dashboard
+
+          <div
+            style={{
+              fontSize: '25px',
+              marginBottom: '8px',
+            }}
+          >
+            Welcome to
+          </div>
+
+          <h1
+            style={{
+              margin: 0,
+              fontSize: '46px',
+              fontWeight: '800',
+            }}
+          >
+            arch-restaurant
           </h1>
 
-          <p className="text-muted mb-0">
-            Manage arch-restaurant menu and orders
+          <div
+            style={{
+              fontSize: '22px',
+              marginTop: '8px',
+            }}
+          >
+            Good Food. Great Moments.
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* DASHBOARD CARDS */}
+
+      <section
+        style={{
+          display: 'grid',
+          gridTemplateColumns:
+            'repeat(4, minmax(0, 1fr))',
+          gap: '24px',
+          marginBottom: '32px',
+        }}
+      >
+
+        {/* TOTAL ORDERS */}
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate('/orders')
+          }
+          style={{
+            ...cardStyle,
+            background: '#eefbf5',
+          }}
+          onMouseEnter={(event) =>
+            handleCardHover(
+              event,
+              true
+            )
+          }
+          onMouseLeave={(event) =>
+            handleCardHover(
+              event,
+              false
+            )
+          }
+        >
+
+          <div
+            style={{
+              fontSize: '18px',
+              fontWeight: '600',
+            }}
+          >
+            🛒 Total Orders
+          </div>
+
+          <div
+            style={{
+              fontSize: '38px',
+              fontWeight: '800',
+              marginTop: '14px',
+            }}
+          >
+            {loading
+              ? '...'
+              : totalOrders}
+          </div>
+
+          <div
+            style={{
+              marginTop: '10px',
+              fontSize: '13px',
+              color: '#27805b',
+              fontWeight: '600',
+            }}
+          >
+            View Orders →
+          </div>
+
+        </button>
+
+        {/* TOTAL MENU ITEMS */}
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate('/admin-menu')
+          }
+          style={{
+            ...cardStyle,
+            background: '#eef5ff',
+          }}
+          onMouseEnter={(event) =>
+            handleCardHover(
+              event,
+              true
+            )
+          }
+          onMouseLeave={(event) =>
+            handleCardHover(
+              event,
+              false
+            )
+          }
+        >
+
+          <div
+            style={{
+              fontSize: '18px',
+              fontWeight: '600',
+            }}
+          >
+            🍽️ Total Menu Items
+          </div>
+
+          <div
+            style={{
+              fontSize: '38px',
+              fontWeight: '800',
+              marginTop: '14px',
+            }}
+          >
+            {loading
+              ? '...'
+              : totalMenuItems}
+          </div>
+
+          <div
+            style={{
+              marginTop: '10px',
+              fontSize: '13px',
+              color: '#356da8',
+              fontWeight: '600',
+            }}
+          >
+            Manage Menu →
+          </div>
+
+        </button>
+
+        {/* TOTAL FEEDBACK */}
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate('/reviews')
+          }
+          style={{
+            ...cardStyle,
+            background: '#fff0f0',
+          }}
+          onMouseEnter={(event) =>
+            handleCardHover(
+              event,
+              true
+            )
+          }
+          onMouseLeave={(event) =>
+            handleCardHover(
+              event,
+              false
+            )
+          }
+        >
+
+          <div
+            style={{
+              fontSize: '18px',
+              fontWeight: '600',
+            }}
+          >
+            💬 Total Feedback
+          </div>
+
+          <div
+            style={{
+              fontSize: '38px',
+              fontWeight: '800',
+              marginTop: '14px',
+            }}
+          >
+            {loading
+              ? '...'
+              : totalFeedback}
+          </div>
+
+          <div
+            style={{
+              marginTop: '10px',
+              fontSize: '13px',
+              color: '#b54d55',
+              fontWeight: '600',
+            }}
+          >
+            View Feedback →
+          </div>
+
+        </button>
+
+        {/* LIVE CUSTOMER CARTS */}
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate('/admin-carts')
+          }
+          style={{
+            ...cardStyle,
+            background: '#fff8e8',
+          }}
+          onMouseEnter={(event) =>
+            handleCardHover(
+              event,
+              true
+            )
+          }
+          onMouseLeave={(event) =>
+            handleCardHover(
+              event,
+              false
+            )
+          }
+        >
+
+          <div
+            style={{
+              fontSize: '18px',
+              fontWeight: '600',
+            }}
+          >
+            🛒 Live Customer Carts
+          </div>
+
+          <div
+            style={{
+              fontSize: '38px',
+              fontWeight: '800',
+              marginTop: '14px',
+            }}
+          >
+            {loading
+              ? '...'
+              : totalLiveCarts}
+          </div>
+
+          <div
+            style={{
+              marginTop: '10px',
+              fontSize: '13px',
+              color: '#a06b0c',
+              fontWeight: '600',
+            }}
+          >
+            View Live Carts →
+          </div>
+
+        </button>
+
+      </section>
+
+      {/* RECENT ORDERS */}
+
+      <section
+        style={{
+          background: '#fff',
+          borderRadius: '12px',
+          padding: '30px',
+          boxShadow:
+            '0 4px 14px rgba(0,0,0,0.07)',
+        }}
+      >
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent:
+              'space-between',
+            alignItems: 'center',
+            marginBottom: '22px',
+          }}
+        >
+
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '25px',
+            }}
+          >
+            📊 Recent Orders
+          </h2>
+
+          <button
+            type="button"
+            onClick={() =>
+              navigate('/orders')
+            }
+            style={{
+              border: 'none',
+              background: '#eef1f4',
+              padding: '11px 18px',
+              borderRadius: '7px',
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            View All
+          </button>
+
+        </div>
+
+        {loading ? (
+          <p>Loading orders...</p>
+        ) : recentOrders.length === 0 ? (
+          <p
+            style={{
+              color: '#777',
+              margin: 0,
+            }}
+          >
+            No orders yet.
           </p>
-        </div>
-
-      </div>
-
-      {/* STAT CARDS */}
-
-      <div className="row g-4 mb-5">
-
-        <div className="col-md-3">
-
+        ) : (
           <div
-  className="card bg-primary text-white shadow h-100"
-  onClick={() => navigate("/admin-menu")}
-  style={{
-    cursor: "pointer",
-    transition: "transform 0.2s ease",
-  }}
->
+            style={{
+              overflowX: 'auto',
+            }}
+          >
 
-            <div className="card-body">
-
-              <h5>
-                Total Menu Items
-              </h5>
-
-              <h1 className="display-5 fw-bold">
-                {menuItems.length}
-              </h1>
-
-              <p className="mb-0">
-                Food and size entries
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="col-md-3">
-
-          <div
-  className="card bg-success text-white shadow h-100"
-  onClick={() => navigate("/orders")}
-  style={{
-    cursor: "pointer",
-    transition: "transform 0.2s ease",
-  }}
->
-
-            <div className="card-body">
-
-              <h5>
-                Total Orders
-              </h5>
-
-              <h1 className="display-5 fw-bold">
-                {orderCount}
-              </h1>
-
-              <p className="mb-0">
-                Orders received
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="col-md-3">
-
-          <div
-  className="card bg-warning text-dark shadow h-100"
-  onClick={() => {
-    document
-      .getElementById("live-cart-demand")
-      ?.scrollIntoView({
-        behavior: "smooth",
-      });
-  }}
-  style={{
-    cursor: "pointer",
-    transition: "transform 0.2s ease",
-  }}
->
-
-            <div className="card-body">
-
-              <h5>
-                🛒 Live Customers
-              </h5>
-
-              <h1 className="display-5 fw-bold">
-                {totalLiveCustomers}
-              </h1>
-
-              <p className="mb-0">
-                Customers currently shopping
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="col-md-3">
-
-          <div className="card bg-dark text-white shadow h-100">
-
-            <div className="card-body">
-
-              <h5>
-                Restaurant
-              </h5>
-
-              <h2 className="fw-bold">
-                arch-restaurant
-              </h2>
-
-              <p className="mb-0">
-                Good Food. Great Moments.
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* LIVE CART DEMAND */}
-
-      <div
-  id="live-cart-demand"
-  className="card shadow-sm mb-5"
->
-
-        <div className="card-body">
-
-          <div className="d-flex justify-content-between align-items-center mb-4">
-
-            <div>
-
-              <h2 className="mb-1">
-                🛒 Live Cart Demand
-              </h2>
-
-              <p className="text-muted mb-0">
-                See what customers are currently
-                considering before they place an order.
-              </p>
-
-            </div>
-
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={loadLiveCarts}
+            <table
+              style={{
+                width: '100%',
+                borderCollapse:
+                  'collapse',
+              }}
             >
-              🔄 Refresh
-            </button>
 
-          </div>
+              <thead>
 
-          {/* LIVE SUMMARY */}
+                <tr>
 
-          <div className="row g-3 mb-4">
+                  <th
+                    style={{
+                      textAlign: 'left',
+                      padding: '12px',
+                      borderBottom:
+                        '1px solid #ddd',
+                    }}
+                  >
+                    Order
+                  </th>
 
-            <div className="col-md-4">
+                  <th
+                    style={{
+                      textAlign: 'left',
+                      padding: '12px',
+                      borderBottom:
+                        '1px solid #ddd',
+                    }}
+                  >
+                    Customer
+                  </th>
 
-              <div className="border rounded p-3">
+                  <th
+                    style={{
+                      textAlign: 'left',
+                      padding: '12px',
+                      borderBottom:
+                        '1px solid #ddd',
+                    }}
+                  >
+                    Total
+                  </th>
 
-                <small className="text-muted">
-                  Active Customers
-                </small>
+                  <th
+                    style={{
+                      textAlign: 'left',
+                      padding: '12px',
+                      borderBottom:
+                        '1px solid #ddd',
+                    }}
+                  >
+                    Status
+                  </th>
 
-                <h3 className="fw-bold mb-0">
-                  {totalLiveCustomers}
-                </h3>
+                </tr>
 
-              </div>
+              </thead>
 
-            </div>
+              <tbody>
 
-            <div className="col-md-4">
-
-              <div className="border rounded p-3">
-
-                <small className="text-muted">
-                  Items in Live Carts
-                </small>
-
-                <h3 className="fw-bold mb-0">
-                  {totalLiveItems}
-                </h3>
-
-              </div>
-
-            </div>
-
-            <div className="col-md-4">
-
-              <div className="border rounded p-3">
-
-                <small className="text-muted">
-                  Unique Food/Size Demands
-                </small>
-
-                <h3 className="fw-bold mb-0">
-                  {demandItems.length}
-                </h3>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {cartLoading ? (
-
-            <div className="text-center py-4">
-              <p className="text-muted">
-                Loading live cart demand...
-              </p>
-            </div>
-
-          ) : liveCarts.length === 0 ? (
-
-            <div className="text-center py-5">
-
-              <div
-                style={{
-                  fontSize: "3rem",
-                }}
-              >
-                🛒
-              </div>
-
-              <h4>
-                No active customer carts
-              </h4>
-
-              <p className="text-muted">
-                Live cart demand will appear here
-                when customers add items to their carts.
-              </p>
-
-            </div>
-
-          ) : (
-
-            <>
-
-              {/* DEMAND TABLE */}
-
-              <h5 className="fw-bold mb-3">
-                📊 Combined Demand
-              </h5>
-
-              <div className="table-responsive mb-5">
-
-                <table className="table table-hover align-middle">
-
-                  <thead>
-
-                    <tr>
-                      <th>Food Item</th>
-                      <th>Size</th>
-                      <th>Quantity</th>
-                    </tr>
-
-                  </thead>
-
-                  <tbody>
-
-                    {demandItems.map(
-                      (item, index) => (
-
-                        <tr key={index}>
-
-                          <td>
-                            <strong>
-                              {item.foodItem}
-                            </strong>
-                          </td>
-
-                          <td>
-                            {item.sizeCategory}
-                          </td>
-
-                          <td>
-
-                            <span className="badge bg-warning text-dark fs-6">
-                              {item.quantity}
-                            </span>
-
-                          </td>
-
-                        </tr>
-
-                      )
-                    )}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-              {/* CUSTOMER CARTS */}
-
-              <h5 className="fw-bold mb-3">
-                👥 Customer Carts
-              </h5>
-
-              <div className="row g-4">
-
-                {liveCarts.map(
-                  (cart) => (
-
-                    <div
-                      className="col-lg-6"
-                      key={cart._id}
+                {recentOrders.map(
+                  (order, index) => (
+                    <tr
+                      key={
+                        order._id ||
+                        order.id ||
+                        index
+                      }
                     >
 
-                      <div className="border rounded p-4 h-100">
+                      <td
+                        style={{
+                          padding:
+                            '14px 12px',
+                          borderBottom:
+                            '1px solid #eee',
+                        }}
+                      >
+                        #
+                        {String(
+                          order._id ||
+                            order.id ||
+                            index + 1
+                        ).slice(-6)}
+                      </td>
 
-                        <div className="d-flex justify-content-between align-items-center mb-3">
+                      <td
+                        style={{
+                          padding:
+                            '14px 12px',
+                          borderBottom:
+                            '1px solid #eee',
+                        }}
+                      >
+                        {order.user?.name ||
+                          order.customer
+                            ?.name ||
+                          'Customer'}
+                      </td>
 
-                          <div>
+                      <td
+                        style={{
+                          padding:
+                            '14px 12px',
+                          borderBottom:
+                            '1px solid #eee',
+                        }}
+                      >
+                        ₹
+                        {Number(
+                          order.grandTotal ||
+                            order.total ||
+                            0
+                        ).toFixed(2)}
+                      </td>
 
-                            <h5 className="fw-bold mb-1">
-                              👤 {cart.customerName}
-                            </h5>
+                      <td
+                        style={{
+                          padding:
+                            '14px 12px',
+                          borderBottom:
+                            '1px solid #eee',
+                        }}
+                      >
+                        {order.status ||
+                          'Pending'}
+                      </td>
 
-                            <small className="text-muted">
-                              Cart updated{" "}
-                              {new Date(
-                                cart.updatedAt
-                              ).toLocaleTimeString()}
-                            </small>
-
-                          </div>
-
-                          <span className="badge bg-primary">
-                            {cart.items?.length || 0} items
-                          </span>
-
-                        </div>
-
-                        {cart.items?.map(
-                          (item, index) => (
-
-                            <div
-                              key={index}
-                              className="d-flex justify-content-between border-top py-2"
-                            >
-
-                              <div>
-
-                                <strong>
-                                  {item.foodItem}
-                                </strong>
-
-                                <small className="text-muted d-block">
-                                  {item.sizeCategory}
-                                </small>
-
-                              </div>
-
-                              <div className="text-end">
-
-                                <strong>
-                                  ×{item.quantity}
-                                </strong>
-
-                                <small className="text-muted d-block">
-                                  ₹
-                                  {Number(
-                                    item.totalPrice || 0
-                                  ).toFixed(2)}
-                                </small>
-
-                              </div>
-
-                            </div>
-
-                          )
-                        )}
-
-                        <div className="border-top pt-3 mt-2 d-flex justify-content-between">
-
-                          <strong>
-                            Cart Subtotal
-                          </strong>
-
-                          <strong>
-                            ₹
-                            {Number(
-                              cart.subtotal || 0
-                            ).toFixed(2)}
-                          </strong>
-
-                        </div>
-
-                      </div>
-
-                    </div>
-
+                    </tr>
                   )
                 )}
 
-              </div>
+              </tbody>
 
-            </>
-
-          )}
-
-        </div>
-
-      </div>
-
-      {/* MENU MANAGEMENT */}
-
-      <div className="card shadow-sm mb-5">
-
-        <div className="card-body">
-
-          <h2 className="mb-1">
-            🍽️ Menu Management
-          </h2>
-
-          <p className="text-muted">
-            Add food, prices, sizes and individual
-            food images.
-          </p>
-
-          <MenuForm
-            formData={formData}
-            onChange={handleChange}
-            onSubmit={handleSubmit}
-            editingId={editingId}
-            onCancel={resetForm}
-          />
-
-        </div>
-
-      </div>
-
-      {/* MENU TABLE */}
-
-      <div className="card shadow-sm">
-
-        <div className="card-body">
-
-          <div className="d-flex justify-content-between align-items-center mb-3">
-
-            <div>
-
-              <h2 className="mb-1">
-                Current Menu
-              </h2>
-
-              <p className="text-muted mb-0">
-                Manage items displayed to customers.
-              </p>
-
-            </div>
+            </table>
 
           </div>
+        )}
 
-          {loading ? (
+      </section>
 
-            <p>
-              Loading menu...
-            </p>
-
-          ) : menuItems.length === 0 ? (
-
-            <div className="text-center py-5">
-
-              <h4>
-                No menu items yet
-              </h4>
-
-              <p className="text-muted">
-                Add your first food item above.
-              </p>
-
-            </div>
-
-          ) : (
-
-            <div className="table-responsive">
-
-              <table className="table table-hover align-middle">
-
-                <thead>
-
-                  <tr>
-                    <th>Image</th>
-                    <th>Food Name</th>
-                    <th>Size</th>
-                    <th>Price</th>
-                    <th>Actions</th>
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {menuItems.map(
-                    (item) => (
-
-                      <tr
-                        key={item._id}
-                      >
-
-                        <td>
-
-                          {item.image ? (
-
-                            <img
-                              src={item.image}
-                              alt={item.foodName}
-                              style={{
-                                width:
-                                  "70px",
-                                height:
-                                  "55px",
-                                objectFit:
-                                  "cover",
-                                borderRadius:
-                                  "8px",
-                              }}
-                            />
-
-                          ) : (
-
-                            <span className="text-muted">
-                              No image
-                            </span>
-
-                          )}
-
-                        </td>
-
-                        <td>
-                          <strong>
-                            {item.foodName}
-                          </strong>
-                        </td>
-
-                        <td>
-                          {item.sizeCategory}
-                        </td>
-
-                        <td>
-                          ₹{item.price}
-                        </td>
-
-                        <td>
-
-                          <div className="d-flex gap-2">
-
-                            <button
-                              type="button"
-                              className="btn btn-warning btn-sm"
-                              onClick={() =>
-                                handleEdit(
-                                  item
-                                )
-                              }
-                            >
-                              Edit
-                            </button>
-
-                            <button
-                              type="button"
-                              className="btn btn-danger btn-sm"
-                              onClick={() =>
-                                handleDelete(
-                                  item._id
-                                )
-                              }
-                            >
-                              Delete
-                            </button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          )}
-
-        </div>
-
-      </div>
-
-    </div>
+    </main>
   );
 }
 

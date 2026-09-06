@@ -16,20 +16,15 @@ const app = express();
 
 const PORT = process.env.PORT || 5001;
 
-// --------------------------------------------------
-// CORS
-// --------------------------------------------------
-
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests without an Origin header
-      // such as Postman/server-to-server requests.
       if (!origin) {
         return callback(null, true);
       }
@@ -38,32 +33,42 @@ app.use(
         return callback(null, true);
       }
 
-      return callback(new Error('Not allowed by CORS'));
+      return callback(
+        new Error('Not allowed by CORS')
+      );
     },
     credentials: true,
   })
 );
 
-// --------------------------------------------------
-// BODY PARSER
-// --------------------------------------------------
-
 app.use(express.json({ limit: '1mb' }));
 
-// --------------------------------------------------
-// ROUTES
-// --------------------------------------------------
+// Connect to MongoDB before handling API requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error(
+      'Database connection error:',
+      error.message
+    );
 
+    res.status(500).json({
+      message:
+        'Database connection failed. Please try again later.',
+    });
+  }
+});
+
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/feedback', feedbackRoutes);
 
-// --------------------------------------------------
-// HEALTH CHECK
-// --------------------------------------------------
-
+// API health check
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
@@ -71,16 +76,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// --------------------------------------------------
-// DATABASE
-// --------------------------------------------------
-
-connectDB();
-
-// --------------------------------------------------
-// LOCAL SERVER
-// --------------------------------------------------
-
+// Local development only
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(
@@ -88,9 +84,5 @@ if (require.main === module) {
     );
   });
 }
-
-// --------------------------------------------------
-// VERCEL
-// --------------------------------------------------
 
 module.exports = app;

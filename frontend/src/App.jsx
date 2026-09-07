@@ -1,20 +1,147 @@
 import { Routes, Route } from 'react-router-dom';
+
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Navbar from './components/Navbar';
+
 import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Orders from './pages/Orders';
+import AdminMenu from './pages/AdminMenu';
+import EditMenu from './pages/EditMenu';
+import Reviews from './pages/Reviews';
+import AdminCarts from './pages/AdminCarts';
+import Cart from './pages/Cart';
 
 function App() {
   return (
     <>
-      <Navbar />
-      <div className="container py-4">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/orders" element={<Orders />} />
-        </Routes>
-      </div>
+      <Routes>
+
+        {/* ==================== LOGIN ==================== */}
+
+        <Route
+          path="/"
+          element={<Login />}
+        />
+
+        {/* ==================== REGISTER ==================== */}
+
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+
+        {/* ==================== CUSTOMER HOME ==================== */}
+
+        <Route
+          path="/home"
+          element={
+            <>
+              <Navbar />
+              <Home />
+            </>
+          }
+        />
+
+        {/* ==================== ADMIN DASHBOARD ==================== */}
+
+        <Route
+          path="/admin"
+          element={
+            <>
+              <Navbar />
+              <Dashboard />
+            </>
+          }
+        />
+
+        {/* ==================== ADMIN LIVE CUSTOMER CARTS ==================== */}
+
+        <Route
+          path="/admin-carts"
+          element={
+            <>
+              <Navbar />
+              <AdminCarts />
+            </>
+          }
+        />
+
+        {/* ==================== CUSTOMER MENU ==================== */}
+
+        <Route
+          path="/menu"
+          element={
+            <>
+              <Navbar />
+              <Menu />
+            </>
+          }
+        />
+
+        {/* ==================== CUSTOMER CART ==================== */}
+
+        <Route
+          path="/cart"
+          element={
+            <>
+              <Navbar />
+              <Cart />
+            </>
+          }
+        />
+
+        {/* ==================== ADMIN MENU ==================== */}
+
+        <Route
+          path="/admin-menu"
+          element={
+            <>
+              <Navbar />
+              <AdminMenu />
+            </>
+          }
+        />
+
+        {/* ==================== EDIT MENU ==================== */}
+
+        <Route
+          path="/edit-menu/:id"
+          element={
+            <>
+              <Navbar />
+              <EditMenu />
+            </>
+          }
+        />
+
+        {/* ==================== ORDERS ==================== */}
+
+        <Route
+          path="/orders"
+          element={
+            <>
+              <Navbar />
+              <Orders />
+            </>
+          }
+        />
+
+        {/* ==================== ADMIN REVIEWS ==================== */}
+
+        <Route
+          path="/reviews"
+          element={
+            <>
+              <Navbar />
+              <Reviews />
+            </>
+          }
+        />
+
+      </Routes>
     </>
   );
 }

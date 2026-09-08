@@ -1,14 +1,19 @@
- const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 let cachedConnection = null;
 
 const connectDB = async () => {
-  if (cachedConnection && mongoose.connection.readyState === 1) {
+  if (
+    cachedConnection &&
+    mongoose.connection.readyState === 1
+  ) {
     return cachedConnection;
   }
 
   if (!process.env.MONGO_URI) {
-    throw new Error('MONGO_URI is not configured');
+    throw new Error(
+      'MONGO_URI is not configured'
+    );
   }
 
   try {
@@ -16,6 +21,7 @@ const connectDB = async () => {
       process.env.MONGO_URI,
       {
         serverSelectionTimeoutMS: 10000,
+        family: 4,
       }
     );
 

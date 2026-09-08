@@ -19,31 +19,49 @@ const PORT = process.env.PORT || 5001;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
+  'https://arch-restaurant.vercel.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) {
-        return callback(null, true);
-      }
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      return callback(
-        new Error('Not allowed by CORS')
-      );
-    },
-    credentials: true,
-  })
-);
+    console.log(
+      `Blocked CORS origin: ${origin}`
+    );
+
+    return callback(
+      new Error('Not allowed by CORS')
+    );
+  },
+  credentials: true,
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+  ],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+  ],
+};
+
+app.use(cors(corsOptions));
+
+app.options('*', cors(corsOptions));
 
 app.use(express.json({ limit: '1mb' }));
 
-// Connect to MongoDB before handling API requests
 app.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -61,14 +79,12 @@ app.use(async (req, res, next) => {
   }
 });
 
-// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/feedback', feedbackRoutes);
 
-// API health check
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
@@ -76,7 +92,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// Local development only
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(

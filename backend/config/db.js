@@ -13,11 +13,18 @@ const connectDB = async () => {
   const username = process.env.MONGO_USERNAME;
   const password = process.env.MONGO_PASSWORD;
   const host = process.env.MONGO_HOST;
-  const database = process.env.MONGO_DATABASE || 'test';
+  const database =
+    process.env.MONGO_DATABASE || 'test';
 
-  if (!username || !password || !host) {
+  const missing = [];
+
+  if (!username) missing.push('MONGO_USERNAME');
+  if (!password) missing.push('MONGO_PASSWORD');
+  if (!host) missing.push('MONGO_HOST');
+
+  if (missing.length > 0) {
     throw new Error(
-      'MongoDB configuration is incomplete'
+      `Missing MongoDB environment variables: ${missing.join(', ')}`
     );
   }
 

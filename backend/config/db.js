@@ -10,32 +10,15 @@ const connectDB = async () => {
     return cachedConnection;
   }
 
-  const username = process.env.MONGO_USERNAME;
-  const password = process.env.MONGO_PASSWORD;
-  const host = process.env.MONGO_HOST;
-  const database =
-    process.env.MONGO_DATABASE || 'test';
+  const mongoUri = process.env.MONGO_URI;
 
-  const missing = [];
-
-  if (!username) missing.push('MONGO_USERNAME');
-  if (!password) missing.push('MONGO_PASSWORD');
-  if (!host) missing.push('MONGO_HOST');
-
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing MongoDB environment variables: ${missing.join(', ')}`
-    );
+  if (!mongoUri) {
+    throw new Error('MONGO_URI is not configured');
   }
-
-  const mongoUri =
-    `mongodb+srv://${encodeURIComponent(username)}:` +
-    `${encodeURIComponent(password)}@${host}/${database}` +
-    `?appName=arch-restaurant`;
 
   try {
     cachedConnection = await mongoose.connect(
-      mongoUri,
+      mongoUri.trim(),
       {
         serverSelectionTimeoutMS: 10000,
         family: 4,

@@ -33,9 +33,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    console.log(
-      `Blocked CORS origin: ${origin}`
-    );
+    console.log(`Blocked CORS origin: ${origin}`);
 
     return callback(
       new Error('Not allowed by CORS')
@@ -57,7 +55,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.options('*', cors(corsOptions));
 
 app.use(express.json({ limit: '1mb' }));
@@ -68,13 +65,14 @@ app.use(async (req, res, next) => {
     next();
   } catch (error) {
     console.error(
-      'Database connection error:',
-      error.message
+      'DATABASE CONNECTION ERROR:',
+      error
     );
 
-    res.status(500).json({
-      message:
-        'Database connection failed. Please try again later.',
+    return res.status(500).json({
+      success: false,
+      message: 'Database connection failed',
+      error: error.message,
     });
   }
 });

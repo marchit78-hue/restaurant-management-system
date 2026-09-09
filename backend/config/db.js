@@ -10,42 +10,21 @@ const connectDB = async () => {
     return cachedConnection;
   }
 
-  let mongoUri = process.env.MONGODB_URI;
+  const username = process.env.MONGO_USERNAME;
+  const password = process.env.MONGO_PASSWORD;
+  const host = process.env.MONGO_HOST;
+  const database = process.env.MONGO_DATABASE || 'test';
 
-  if (!mongoUri) {
-    mongoUri = process.env.MONGO_URI;
-  }
-
-  if (!mongoUri) {
+  if (!username || !password || !host) {
     throw new Error(
-      'No MongoDB environment variable found. Expected MONGODB_URI or MONGO_URI.'
+      'MongoDB configuration is incomplete'
     );
   }
 
-  mongoUri = String(mongoUri).trim();
-
-  // Remove accidental surrounding quotes
-  mongoUri = mongoUri.replace(/^["']|["']$/g, '').trim();
-
-  // Remove accidental variable-name prefixes
-  mongoUri = mongoUri.replace(
-    /^(MONGO_URI|MONGODB_URI)\s*=\s*/i,
-    ''
-  ).trim();
-
-  const startsWithMongo =
-    mongoUri.startsWith('mongodb://');
-
-  const startsWithMongoSrv =
-    mongoUri.startsWith('mongodb+srv://');
-
-  if (!startsWithMongo && !startsWithMongoSrv) {
-    throw new Error(
-      `Invalid MongoDB URI. First characters received: ${JSON.stringify(
-        mongoUri.substring(0, 40)
-      )}`
-    );
-  }
+  const mongoUri =
+    `mongodb+srv://${encodeURIComponent(username)}:` +
+    `${encodeURIComponent(password)}@${host}/${database}` +
+    `?appName=arch-restaurant`;
 
   try {
     cachedConnection = await mongoose.connect(
